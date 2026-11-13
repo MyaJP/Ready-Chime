@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "ready_chime",
+  "version": "${version}",
+  "name": "Ready Chime",
+  "description": "Plays a chime when the game has finished loading or a resource reload is done. Client-side only.",
+  "authors": ["Mya"],
+  "contact": { "homepage": "https://www.curseforge.com/members/mya_jp" },
+  "license": "MIT",
+  "environment": "client",
+  "mixins": [{ "config": "ready_chime.mixins.json", "environment": "client" }],
+  "depends": {
+    "fabricloader": ">=${loader_min}",
+    "minecraft": "${mc}",
+    "java": ">=${java}"
+  }
+}

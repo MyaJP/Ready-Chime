@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "jp.mya.readychime.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": ["MinecraftMixin", "SoundOptionsScreenMixin", "TitleScreenMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

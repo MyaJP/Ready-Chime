@@ -1,0 +1,29 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mods]]
+modId = "ready_chime"
+version = "${version}"
+displayName = "Ready Chime"
+authors = "Mya"
+description = '''
+Plays a chime when the game has finished loading or a resource reload is done. Client-side only.
+'''
+
+[[mixins]]
+config = "ready_chime.mixins.json"
+
+[[dependencies.ready_chime]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${neo_min},)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.ready_chime]]
+modId = "minecraft"
+type = "required"
+versionRange = "[${mc}]"
+ordering = "NONE"
+side = "CLIENT"

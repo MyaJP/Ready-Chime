@@ -1,1 +1,5 @@
 jars/*.tmp
+build/
+.gradle/
+run/
+out/
