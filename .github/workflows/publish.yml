@@ -1,0 +1,66 @@
+name: Publish
+
+# Uploads the jars in jars/ to CurseForge.
+# Run it from the Actions tab (or the API) with workflow_dispatch.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+      version: ${{ steps.m.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: m
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, re
+          v = open('VERSION').read().strip()
+          rows = []
+          for f in sorted(os.listdir('jars')):
+              m = re.fullmatch(r'.+-(fabric|neoforge|forge)-(.+)-' + re.escape(v) + r'\.jar', f)
+              if m:
+                  rows.append({'file': f, 'loader': m.group(1), 'mc': m.group(2)})
+          print('matrix=' + json.dumps({'include': rows}))
+          print('version=' + v)
+          PY
+
+  release:
+    needs: list
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v$(tr -d '[:space:]' < VERSION)"
+          gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1 || \
+            gh release create "$TAG" jars/*.jar --target "${{ github.sha }}" --title "$TAG" --notes-file release-notes.md --repo "${{ github.repository }}"
+
+  publish:
+    name: ${{ matrix.loader }} ${{ matrix.mc }}
+    needs: list
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix: ${{ fromJson(needs.list.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          curseforge-id: CURSEFORGE_PROJECT_ID
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files: jars/${{ matrix.file }}
+          name: Ready Chime ${{ needs.list.outputs.version }} (${{ matrix.loader }} ${{ matrix.mc }})
+          version: ${{ needs.list.outputs.version }}+${{ matrix.loader }}-${{ matrix.mc }}
+          version-type: release
+          changelog-file: release-notes.md
+          loaders: ${{ matrix.loader }}
+          game-versions: ${{ matrix.mc }}
+          dependencies: ${{ matrix.loader == 'fabric' && '' || '' }}
